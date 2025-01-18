@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_filters',
     'django_cleanup',
+    'rest_framework',
 
     # apps
     'store',
@@ -139,3 +140,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {}
