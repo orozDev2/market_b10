@@ -6,14 +6,14 @@ from store.models import Product, ProductAttribute, Category, Tag, ProductImage
 from utils.main import base64_to_image_file
 
 
-class ProductAttributeSerializer(serializers.ModelSerializer):
+class AttributeForProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductAttribute
         exclude = ('product',)
 
 
-class ProductImageSerializer(serializers.ModelSerializer):
+class ImageForProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductImage
@@ -40,10 +40,10 @@ class ListProductSerializer(serializers.ModelSerializer):
     # category = serializers.CharField(source='category.name')
     # tags = serializers.ListSerializer(child=serializers.CharField(source='tags.name'))
     image = serializers.ImageField()
-    attributes = ProductAttributeSerializer(many=True)
+    attributes = AttributeForProductSerializer(many=True)
     category = CategorySerializer()
     tags = TagSerializer(many=True)
-    images = ProductImageSerializer(many=True)
+    images = ImageForProductSerializer(many=True)
 
     class Meta:
         model = Product
@@ -56,10 +56,10 @@ class DetailProductSerializer(serializers.ModelSerializer):
     # category = serializers.CharField(source='category.name')
     # tags = serializers.ListSerializer(child=serializers.CharField(source='tags.name'))
     image = serializers.ImageField()
-    attributes = ProductAttributeSerializer(many=True)
+    attributes = AttributeForProductSerializer(many=True)
     category = CategorySerializer()
     tags = TagSerializer(many=True)
-    images = ProductImageSerializer(many=True)
+    images = ImageForProductSerializer(many=True)
 
     class Meta:
         model = Product
@@ -68,7 +68,7 @@ class DetailProductSerializer(serializers.ModelSerializer):
 
 class CreateProductSerializer(serializers.ModelSerializer):
 
-    attributes = ProductAttributeSerializer(many=True)
+    attributes = AttributeForProductSerializer(many=True)
     images = serializers.ListSerializer(child=serializers.CharField())
 
     class Meta:
@@ -107,3 +107,31 @@ class CreateProductSerializer(serializers.ModelSerializer):
             product_image.save()
 
         return product
+
+
+class UpdateProductSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Product
+        exclude = ('user',)
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductImage
+        fields = '__all__'
+
+
+class ProductAttributeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductAttribute
+        fields = '__all__'
+
+
+class UpdateProductAttributeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductAttribute
+        fields = ('name', 'value')
