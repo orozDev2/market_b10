@@ -1,9 +1,9 @@
-from pprint import pprint
-
+from django.db.models import Q
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from rest_framework import status
+from django.core.paginator import Paginator
 
 from api.serializers import ListProductSerializer, DetailProductSerializer, CreateProductSerializer, \
     UpdateProductSerializer, ProductImageSerializer, ProductAttributeSerializer, \
@@ -13,7 +13,6 @@ from store.models import Product, ProductImage, ProductAttribute
 
 @api_view(['GET', 'POST'])
 def list_create_products(request):
-
     if request.method == 'POST':
         serializer = CreateProductSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -22,8 +21,39 @@ def list_create_products(request):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     products = Product.objects.all()
+
+    search = request.GET.get('search')
+    if search:
+        products = products.filter(
+            Q(name__icontains=search) |
+            Q(description__icontains=search) |
+            Q(content__icontains=search) |
+            Q(tags__name__icontains=search)
+        ).distinct()
+
+    ordering_fields = ['name', 'price', 'rating', 'created_at']
+
+    ordering: str = request.GET.get('ordering', '')
+    tem_ordering = ordering.split('-')[1] if ordering.startswith('-') else ordering
+
+    if tem_ordering in ordering_fields:
+        products = products.order_by(ordering)
+
+    product_count = products.count()
+
+    page = int(request.GET.get('page', 1))
+    page_size = int(request.GET.get('page_size', 2))
+    pagin = Paginator(products, page_size)
+    products = pagin.get_page(page)
+
     serializer = ListProductSerializer(products, many=True, context={'request': request})
-    return Response(serializer.data)
+
+    return Response({
+        'page': page,
+        'page_size': page_size,
+        'count': product_count,
+        'results': serializer.data
+    })
 
 
 @api_view(['GET', 'PATCH', 'PUT', "DELETE"])
@@ -42,7 +72,7 @@ def detail_update_delete_product(request, id):
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    serializer = DetailProductSerializer(product,  context={'request': request})
+    serializer = DetailProductSerializer(product, context={'request': request})
     return Response(serializer.data)
 
 
