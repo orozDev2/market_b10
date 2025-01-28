@@ -5,6 +5,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from django.core.paginator import Paginator
 
+from api.filters import ProductFilter
 from api.serializers import ListProductSerializer, DetailProductSerializer, CreateProductSerializer, \
     UpdateProductSerializer, ProductImageSerializer, ProductAttributeSerializer, \
     UpdateProductAttributeSerializer
@@ -22,6 +23,7 @@ def list_create_products(request):
 
     products = Product.objects.all()
 
+    # SEARCH
     search = request.GET.get('search')
     if search:
         products = products.filter(
@@ -31,18 +33,23 @@ def list_create_products(request):
             Q(tags__name__icontains=search)
         ).distinct()
 
-    ordering_fields = ['name', 'price', 'rating', 'created_at']
+    # FILTERING
+    filterset = ProductFilter(queryset=products, data=request.GET)
+    products = filterset.qs
 
+    # ORDERING
+    ordering_fields = ['name', 'price', 'rating', 'created_at']
     ordering: str = request.GET.get('ordering', '')
     tem_ordering = ordering.split('-')[1] if ordering.startswith('-') else ordering
 
     if tem_ordering in ordering_fields:
         products = products.order_by(ordering)
 
+    # PAGINATION
     product_count = products.count()
 
     page = int(request.GET.get('page', 1))
-    page_size = int(request.GET.get('page_size', 2))
+    page_size = int(request.GET.get('page_size', 12))
     pagin = Paginator(products, page_size)
     products = pagin.get_page(page)
 
