@@ -24,6 +24,8 @@ class ProductListAPIView(ListAPIView):
     search_fields = ['name', 'description', 'content', 'tags__name']
 
 
+
+
 class ProductCreateAPIView(CreateAPIView):
     serializer_class = CreateProductSerializer
     queryset = Product.objects.all()  
