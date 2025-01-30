@@ -68,17 +68,17 @@ class DetailProductSerializer(serializers.ModelSerializer):
 
 class CreateProductSerializer(serializers.ModelSerializer):
 
-    attributes = AttributeForProductSerializer(many=True)
-    images = serializers.ListSerializer(child=serializers.CharField())
+    attributes = AttributeForProductSerializer(many=True, required=False)
+    images = serializers.ListSerializer(child=serializers.CharField(), required=False)
 
     class Meta:
         model = Product
         fields = '__all__'
 
     def create(self, validated_data):
-        attributes = validated_data.pop('attributes')
-        images = validated_data.pop('images')
-        tags = validated_data.pop('tags')
+        attributes = validated_data.pop('attributes', [])
+        images = validated_data.pop('images', [])
+        tags = validated_data.pop('tags', [])
 
         file_images = []
 
