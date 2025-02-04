@@ -127,6 +127,12 @@ class UpdateDeleteAttrApiView(APIView):
     def patch(self, request, id, *args, **kwargs):
         return self.update(request, id, partial=True)
 
+    def delete(self, request, id, *args, **kwargs):
+        product_attr = get_object_or_404(ProductAttribute, id=id)
+        serializer = FilmAttributeSerializer(product_attr)
+        return Response(serializer.data)
+
+    
 @api_view(['POST'])
 def create_product_image(request):
     serializer = ProductImageSerializer(data=request.data)
