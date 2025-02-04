@@ -96,6 +96,13 @@ class UpdateDeleteDetailProductApiView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class CreateAttrApiView(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        serializer = ProductAttributeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 def create_product_image(request):
