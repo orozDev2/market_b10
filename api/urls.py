@@ -8,5 +8,5 @@ urlpatterns = [
     path('product-images/<int:id>/', views.delete_product_image),
     path('product-images/', views.delete_product_image),
     path('product-attributes/', views.CreateAttrApiView.as_view()),
-    path('product-attributes/<int:id>/', views.update_delete_product_attr),
+    path('product-attributes/<int:id>/', views.UpdateDeleteAttrApiView.as_view()),
 ]
