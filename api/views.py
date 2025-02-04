@@ -132,7 +132,24 @@ class UpdateDeleteAttrApiView(APIView):
         serializer = FilmAttributeSerializer(product_attr)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class CreateImageApiView(APIView):
     
+    def post(self, request, *args, **kwargs):
+        serializer = ProductImageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    
+class DeleteImageApiView(APIView):
+    
+    def delete(self, request, id, *args, **kwargs):
+        film_image = get_object_or_404(FilmImage, id=id)
+        serializer = ProductImageSerializer(film_image)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 @api_view(['POST'])
 def create_product_image(request):
     serializer = ProductImageSerializer(data=request.data)
