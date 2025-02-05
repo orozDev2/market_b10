@@ -145,8 +145,8 @@ class CreateImageApiView(APIView):
 class DeleteImageApiView(APIView):
     
     def delete(self, request, id, *args, **kwargs):
-        film_image = get_object_or_404(FilmImage, id=id)
-        serializer = ProductImageSerializer(film_image)
+        product_image = get_object_or_404(FilmImage, id=id)
+        serializer = ProductImageSerializer(product_image)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
