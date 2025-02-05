@@ -15,9 +15,13 @@ from api.serializers import ListProductSerializer, DetailProductSerializer, Crea
     UpdateProductSerializer, ProductImageSerializer, ProductAttributeSerializer, \
     UpdateProductAttributeSerializer
 from store.models import Product, ProductImage, ProductAttribute
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 
 class ListCreateProductApiView(APIView):
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         products = Product.objects.all()

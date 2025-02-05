@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -9,4 +9,6 @@ urlpatterns = [
     path('product-images/', views.delete_product_image),
     path('product-attributes/', views.create_product_attr),
     path('product-attributes/<int:id>/', views.update_delete_product_attr),
+
+    path('auth/', include('api.auth.urls')),
 ]
