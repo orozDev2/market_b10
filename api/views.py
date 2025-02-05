@@ -100,6 +100,59 @@ class UpdateDeleteDetailProductApiView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class CreateAttrApiView(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        serializer = ProductAttributeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
+
+
+
+
+class UpdateDeleteAttrApiView(APIView):
+    
+    def update(self, request, id, partial):
+        product_attr = get_object_or_404(ProductAttribute, id=id)
+        serializer = UpdateProductAttributeSerializer(data=request.data, instance=product_attr, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def get(self, request, id, *args, **kwargs):
+        product_attr = get_object_or_404(ProductAttribute, id=id)
+        serializer = ProductAttributeSerializer(product_attr)
+        return Response(serializer.data)
+    
+    def put(self, request, id, *args, **kwargs):
+        return self.update(request, id, partial=False)
+        
+    def patch(self, request, id, *args, **kwargs):
+        return self.update(request, id, partial=True)
+
+    def delete(self, request, id, *args, **kwargs):
+        product_attr = get_object_or_404(ProductAttribute, id=id)
+        serializer = FilmAttributeSerializer(product_attr)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CreateImageApiView(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        serializer = ProductImageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    
+class DeleteImageApiView(APIView):
+    
+    def delete(self, request, id, *args, **kwargs):
+        product_image = get_object_or_404(FilmImage, id=id)
+        serializer = ProductImageSerializer(product_image)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['POST'])
 def create_product_image(request):
