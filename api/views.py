@@ -221,8 +221,8 @@ class ListCreateProductTags(APIView):
     
 class UpdateDeleteProductTagApiView(APIView):
     
-    # authentication_classes = [TokenAuthentication, SessionAuthentication]
-    # permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
     
     def update(self, request, id, partial, *args, **kwargs):
         tag = get_object_or_404(Tag, id=id)
