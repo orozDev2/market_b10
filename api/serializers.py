@@ -135,3 +135,4 @@ class UpdateProductAttributeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductAttribute
         fields = ('name', 'value')
+

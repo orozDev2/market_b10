@@ -1,12 +1,17 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
-urlpatterns = [
+urlpatterns = {
     path('products/', views.ListCreateProductApiView.as_view()),
     path('products/<int:id>/', views.UpdateDeleteDetailProductApiView.as_view()),
-    path('product-images/', views.create_product_image),
-    path('product-images/<int:id>/', views.delete_product_image),
-    path('product-images/', views.delete_product_image),
-    path('product-attributes/', views.create_product_attr),
-    path('product-attributes/<int:id>/', views.update_delete_product_attr),
-]
+
+    path('product-images/', views.CreateProductImageApiView.as_view()),
+    path('product-images/<int:id>/', views.DeleteProductImageApiView.as_view()),
+
+    path('product-attributes/', views.CreateProductAttrApiView.as_view()),
+    path('product-attributes/<int:id>/', views.UpdateDeleteProductAttrApiView.as_view()),
+
+    path('categories/', views.ListCreateCategoryApiView.as_view()),
+
+    path('auth/', include('api.auth.urls')),
+}

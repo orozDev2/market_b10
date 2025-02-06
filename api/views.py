@@ -1,27 +1,30 @@
 from django.db.models import Q
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import (ListAPIView, ListCreateAPIView, CreateAPIView, RetrieveDestroyAPIView, UpdateAPIView, RetrieveUpdateAPIView,
-                                    RetrieveUpdateDestroyAPIView)
+# from rest_framework.decorators import authentication_classes, permission_classes
 from django.core.paginator import Paginator
 from rest_framework.views import APIView
 
 from api.filters import ProductFilter
+from api.permissions import IsAdminOrReadOnly
 from api.serializers import ListProductSerializer, DetailProductSerializer, CreateProductSerializer, \
     UpdateProductSerializer, ProductImageSerializer, ProductAttributeSerializer, \
-    UpdateProductAttributeSerializer
-from store.models import Product, ProductImage, ProductAttribute
+    UpdateProductAttributeSerializer, CategorySerializer
+from store.models import Product, ProductAttribute, ProductImage, Category
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+
+
+# @api_view(['GET', 'POST'])
+# @authentication_classes([TokenAuthentication, SessionAuthentication])
+# @permission_classes([IsAuthenticated])
+# def list_create_products_api_view(request):...
 
 
 class ListCreateProductApiView(APIView):
     authentication_classes = [TokenAuthentication, SessionAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):
         products = Product.objects.all()
@@ -100,7 +103,7 @@ class UpdateDeleteDetailProductApiView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CreateAttrApiView(APIView):
+class CreateProductAttrApiView(APIView):
     
     def post(self, request, *args, **kwargs):
         serializer = ProductAttributeSerializer(data=request.data)
@@ -109,9 +112,7 @@ class CreateAttrApiView(APIView):
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
-
-
-class UpdateDeleteAttrApiView(APIView):
+class UpdateDeleteProductAttrApiView(APIView):
     
     def update(self, request, id, partial):
         product_attr = get_object_or_404(ProductAttribute, id=id)
@@ -133,11 +134,11 @@ class UpdateDeleteAttrApiView(APIView):
 
     def delete(self, request, id, *args, **kwargs):
         product_attr = get_object_or_404(ProductAttribute, id=id)
-        serializer = FilmAttributeSerializer(product_attr)
+        product_attr.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CreateImageApiView(APIView):
+class CreateProductImageApiView(APIView):
     
     def post(self, request, *args, **kwargs):
         serializer = ProductImageSerializer(data=request.data)
@@ -146,48 +147,29 @@ class CreateImageApiView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     
-class DeleteImageApiView(APIView):
+class DeleteProductImageApiView(APIView):
     
     def delete(self, request, id, *args, **kwargs):
-        product_image = get_object_or_404(FilmImage, id=id)
-        serializer = ProductImageSerializer(product_image)
+        product_image = get_object_or_404(ProductImage, id=id)
+        product_image.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['POST'])
-def create_product_image(request):
-    serializer = ProductImageSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(serializer.data, status.HTTP_201_CREATED)
+class ListCreateCategoryApiView(APIView):
 
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
 
-@api_view(['DELETE'])
-def delete_product_image(request, id):
-    product_image = get_object_or_404(ProductImage, id=id)
-    product_image.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@api_view(['POST'])
-def create_product_attr(request):
-    serializer = ProductAttributeSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(serializer.data, status.HTTP_201_CREATED)
-
-
-@api_view(['PUT', 'PATCH', 'DELETE'])
-def update_delete_product_attr(request, id):
-    product_attr = get_object_or_404(ProductAttribute, id=id)
-
-    if request.method in ['PATCH', 'PUT']:
-        partial = request.method == 'PATCH'
-        serializer = UpdateProductAttributeSerializer(instance=product_attr, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+    def get(self, request, *args, **kwargs):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
-    if request.method == 'DELETE':
-        product_attr.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def post(self, request, *args, **kwargs):
+        serializer = CategorySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
+
+
+
