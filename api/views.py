@@ -171,5 +171,12 @@ class ListCreateCategoryApiView(APIView):
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
 
+class UpdateDetailDeleteProductCategory(APIView):
 
+    def update(self, request, id, partial, *args, **kwargs):
+        category = get_object_or_404(Category, id=id)
+        serializer = CategorySerializer(genre, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
 
