@@ -133,7 +133,7 @@ class UpdateDeleteAttrApiView(APIView):
 
     def delete(self, request, id, *args, **kwargs):
         product_attr = get_object_or_404(ProductAttribute, id=id)
-        serializer = FilmAttributeSerializer(product_attr)
+        serializer = ProductAttributeSerializer(product_attr)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
