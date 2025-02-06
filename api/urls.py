@@ -15,6 +15,8 @@ urlpatterns =[
     path('categories/<int:id>/', views.UpdateDeleteProductCategory.as_view()),
     
     path('tags/', views.ListCreateProductTags.as_view()),
+    path('tags/<int:id>/', views.UpdateDeleteProductTagApiView.as_view()),
+    
 
     path('auth/', include('api.auth.urls')),
 ]

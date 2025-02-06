@@ -221,8 +221,8 @@ class ListCreateProductTags(APIView):
     
 class UpdateDeleteProductTagApiView(APIView):
     
-    authentication_classes = [TokenAuthentication, SessionAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
+    # authentication_classes = [TokenAuthentication, SessionAuthentication]
+    # permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
     
     def update(self, request, id, partial, *args, **kwargs):
         tag = get_object_or_404(Tag, id=id)
@@ -230,6 +230,11 @@ class UpdateDeleteProductTagApiView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data,status=status.HTTP_200_OK)
+    
+    def get(self, request, id,*args, **kwargs):
+        tag = get_object_or_404(Tag, id=id)
+        serializer = TagSerializer(tag)
+        return Response(serializer.data)
     
     def put(self, request, id, *args, **kwargs):
         return self.update(request, id, partial=False)
