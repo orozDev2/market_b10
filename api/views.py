@@ -8,10 +8,10 @@ from rest_framework.views import APIView
 
 from api.filters import ProductFilter
 from api.permissions import IsAdminOrReadOnly
-from api.serializers import ListProductSerializer, DetailProductSerializer, CreateProductSerializer, \
+from api.serializers import ListProductSerializer, DetailProductSerializer, CreateProductSerializer, TagSerializer, \
     UpdateProductSerializer, ProductImageSerializer, ProductAttributeSerializer, \
     UpdateProductAttributeSerializer, CategorySerializer
-from store.models import Product, ProductAttribute, ProductImage, Category
+from store.models import Product, ProductAttribute, ProductImage, Category, Tag
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
@@ -171,12 +171,73 @@ class ListCreateCategoryApiView(APIView):
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
 
-class UpdateDetailDeleteProductCategory(APIView):
+class UpdateDeleteProductCategory(APIView):
+    
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
 
     def update(self, request, id, partial, *args, **kwargs):
         category = get_object_or_404(Category, id=id)
-        serializer = CategorySerializer(genre, data=request.data)
+        serializer = CategorySerializer(category, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.data,status=status.HTTP_200_OK)
 
+    def get(self, request, id, *args, **kwargs):
+        category = get_object_or_404(Category, id=id)
+        serializer = CategorySerializer(category)
+        return Response(serializer.data)
+    
+    def put(self, request, id, *args, **kwargs):
+        return self.update(request, id, partial=False)
+    
+    def patch(self, request, id, *args, **kwargs):
+        return self.update(request, id, partial=True)
+    
+    def delete(self, request, id, *args, **kwargs):
+        category = get_object_or_404(Category, id=id)
+        category.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        
+class ListCreateProductTags(APIView):
+    
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
+    
+    
+    def get(self, request, *args, **kwargs):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, *args, **kwargs):
+        serializer = TagSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    
+    
+class UpdateDeleteProductTagApiView(APIView):
+    
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
+    
+    def update(self, request, id, partial, *args, **kwargs):
+        tag = get_object_or_404(Tag, id=id)
+        serializer = TagSerializer(tag, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    
+    def put(self, request, id, *args, **kwargs):
+        return self.update(request, id, partial=False)
+    
+    def patch(self, request, id, *args, **kwargs):
+        return self.update(request, id, partial=True)
+    
+    def delete(self, request, id, *args, **kwargs):
+        tag = get_object_or_404(Tag, id=id)
+        tag.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
