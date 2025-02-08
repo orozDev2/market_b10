@@ -1,10 +1,11 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
+
+from account.services import User
 
 
 class LoginSerializer(serializers.Serializer):
 
-    username = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField()
 
 
@@ -14,8 +15,10 @@ class ReadUserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id',
-            'username',
+            'avatar',
+            'phone',
             'first_name',
             'last_name',
             'email',
+            'role',
         )

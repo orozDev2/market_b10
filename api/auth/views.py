@@ -12,8 +12,8 @@ class LoginApiView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username, password = serializer.validated_data.get('username'), serializer.validated_data.get('password')
-        user = authenticate(username=username, password=password)
+        email, password = serializer.validated_data.get('email'), serializer.validated_data.get('password')
+        user = authenticate(email=email, password=password)
 
         if user:
             token, created = Token.objects.get_or_create(user=user)

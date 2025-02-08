@@ -12,7 +12,6 @@ from api.serializers import ListProductSerializer, DetailProductSerializer, Crea
     UpdateProductSerializer, ProductImageSerializer, ProductAttributeSerializer, \
     UpdateProductAttributeSerializer, CategorySerializer
 from store.models import Product, ProductAttribute, ProductImage, Category
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 
@@ -23,7 +22,6 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 
 
 class ListCreateProductApiView(APIView):
-    authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):
@@ -157,7 +155,6 @@ class DeleteProductImageApiView(APIView):
 
 class ListCreateCategoryApiView(APIView):
 
-    authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
 
     def get(self, request, *args, **kwargs):

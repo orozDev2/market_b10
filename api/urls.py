@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views
 
-urlpatterns = {
+urlpatterns = [
     path('products/', views.ListCreateProductApiView.as_view()),
     path('products/<int:id>/', views.UpdateDeleteDetailProductApiView.as_view()),
 
@@ -14,4 +14,4 @@ urlpatterns = {
     path('categories/', views.ListCreateCategoryApiView.as_view()),
 
     path('auth/', include('api.auth.urls')),
-}
+]

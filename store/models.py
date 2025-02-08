@@ -4,6 +4,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django_resized import ResizedImageField
 
+from account.services import User
+
 
 class TimeStampAbstractModel(models.Model):
     created_at = models.DateTimeField('дата добавление', auto_now_add=True)
@@ -65,7 +67,7 @@ class Product(TimeStampAbstractModel):
                                  help_text='Выберите категорию')
     tags = models.ManyToManyField('store.Tag', verbose_name='теги')
     price = models.DecimalField('цена', max_digits=10, decimal_places=2, default=0.0)
-    user = models.ForeignKey('auth.User', models.CASCADE, verbose_name='пользователь')
+    user = models.ForeignKey(User, models.CASCADE, verbose_name='пользователь')
     receive_type = models.CharField('условия получение', choices=RECEIVE_TYPE, default=ORDER, max_length=15)
     rating = models.DecimalField('рейтинг', max_digits=2, decimal_places=1,
                                          validators=[MinValueValidator(1), MaxValueValidator(5), example_validation])
