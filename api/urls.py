@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views
 
-urlpatterns = [
+urlpatterns =[
     path('products/', views.ListCreateProductApiView.as_view()),
     path('products/<int:id>/', views.UpdateDeleteDetailProductApiView.as_view()),
 
@@ -12,6 +12,11 @@ urlpatterns = [
     path('product-attributes/<int:id>/', views.UpdateDeleteProductAttrApiView.as_view()),
 
     path('categories/', views.ListCreateCategoryApiView.as_view()),
+    path('categories/<int:id>/', views.UpdateDeleteProductCategory.as_view()),
+    
+    path('tags/', views.ListCreateProductTags.as_view()),
+    path('tags/<int:id>/', views.UpdateDeleteProductTagApiView.as_view()),
+    
 
     path('auth/', include('api.auth.urls')),
 ]
