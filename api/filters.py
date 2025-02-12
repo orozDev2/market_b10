@@ -1,14 +1,14 @@
-import django_filters
+from django_filters import rest_framework as filterset
 
 from store.models import Product, Category
 
 
-class ProductFilter(django_filters.FilterSet):
+class ProductFilter(filterset.FilterSet):
 
-    categories = django_filters.ModelMultipleChoiceFilter(queryset=Category.objects.all(), field_name='category')
-    min_price = django_filters.NumberFilter(field_name='price', lookup_expr='gte')
-    max_price = django_filters.NumberFilter(field_name='price', lookup_expr='lte')
-    receive_types = django_filters.MultipleChoiceFilter(choices=Product.RECEIVE_TYPE, field_name='receive_type')
+    categories = filterset.ModelMultipleChoiceFilter(queryset=Category.objects.all(), field_name='category')
+    min_price = filterset.NumberFilter(field_name='price', lookup_expr='gte')
+    max_price = filterset.NumberFilter(field_name='price', lookup_expr='lte')
+    receive_types = filterset.MultipleChoiceFilter(choices=Product.RECEIVE_TYPE, field_name='receive_type')
 
     class Meta:
         model = Product

@@ -3,6 +3,9 @@ from rest_framework import permissions
 
 class IsAdminOrReadOnly(permissions.BasePermission):
 
+    # code = ''
+    # message = ''
+
     def has_permission(self, request, view):
         return bool(
             request.method in permissions.SAFE_METHODS or
