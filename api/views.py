@@ -48,11 +48,11 @@ class ListCreateProductApiView(SuperGenericAPIView):
     def get(self, request, *args, **kwargs):
         products = self.filter_queryset(self.get_queryset())
         products = self.paginate_queryset(products)
-        serializer = self.get_serializer(products, many=True)
+        serializer = self.get_serializer_class()(products, many=True)
         return self.get_paginated_response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         product = serializer.save()
         read_serializer = self.get_response_serializer(product)
@@ -96,20 +96,31 @@ class UpdateDeleteDetailProductApiView(SuperGenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CreateProductAttrApiView(APIView):
+class CreateProductAttrApiView(SuperGenericAPIView):
+    
+    serializer_class = ProductAttributeSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = ProductAttributeSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
-class UpdateDeleteProductAttrApiView(APIView):
+class UpdateDeleteProductAttrApiView(SuperGenericAPIView):
+    
+    queryset = ProductAttribute.objects.all()
+    serializer_classes = {
+        'GET': ProductAttributeSerializer,
+        'PATCH': UpdateProductAttributeSerializer,
+        'PUT': UpdateProductAttributeSerializer,
+    }
+    lookup_field = 'id'
 
-    def update(self, request, id, partial):
-        product_attr = get_object_or_404(ProductAttribute, id=id)
-        serializer = UpdateProductAttributeSerializer(data=request.data, instance=product_attr, partial=partial)
+    def update(self, request, partial):
+        product_attr = self.get_object()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(product_attr, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -119,11 +130,11 @@ class UpdateDeleteProductAttrApiView(APIView):
         serializer = ProductAttributeSerializer(product_attr)
         return Response(serializer.data)
 
-    def put(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=False)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, partial=False)
 
-    def patch(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=True)
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, partial=True)
 
     def delete(self, request, id, *args, **kwargs):
         product_attr = get_object_or_404(ProductAttribute, id=id)
@@ -131,29 +142,35 @@ class UpdateDeleteProductAttrApiView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CreateProductImageApiView(APIView):
+class CreateProductImageApiView(SuperGenericAPIView):
+    
+    serializer_class = ProductImageSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = ProductImageSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class DeleteProductImageApiView(APIView):
+class DeleteProductImageApiView(SuperGenericAPIView):
+    
+    queryset = ProductImage.objects.all()
 
     def delete(self, request, id, *args, **kwargs):
-        product_image = get_object_or_404(ProductImage, id=id)
+        product_image = self.get_object()
         product_image.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ListCreateCategoryApiView(APIView):
+class ListCreateCategoryApiView(SuperGenericAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
 
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
+        categories = self.get_object()
+        serializer = self.get_serializer(categories, many=True)
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
