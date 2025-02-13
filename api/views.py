@@ -48,7 +48,7 @@ class ListCreateProductApiView(SuperGenericAPIView):
     def get(self, request, *args, **kwargs):
         products = self.filter_queryset(self.get_queryset())
         products = self.paginate_queryset(products)
-        serializer = self.get_serializer_class()(products, many=True)
+        serializer = self.get_serializer(products, many=True)
         return self.get_paginated_response(serializer.data)
 
     def post(self, request, *args, **kwargs):
@@ -157,7 +157,7 @@ class DeleteProductImageApiView(SuperGenericAPIView):
     
     queryset = ProductImage.objects.all()
 
-    def delete(self, request, id, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         product_image = self.get_object()
         product_image.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -168,85 +168,91 @@ class ListCreateCategoryApiView(SuperGenericAPIView):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
 
-    def get(self, request, *args, **kwargs):
-        categories = self.get_object()
-        serializer = self.get_serializer(categories, many=True)
-        return Response(serializer.data)
-
     def post(self, request, *args, **kwargs):
-        serializer = CategorySerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
-class UpdateDeleteProductCategory(APIView):
+class UpdateDeleteProductCategory(SuperGenericAPIView):
     authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    lookup_field = 'id'
 
-    def update(self, request, id, partial, *args, **kwargs):
-        category = get_object_or_404(Category, id=id)
-        serializer = CategorySerializer(category, data=request.data)
+    def update(self, request, partial, *args, **kwargs):
+        category = self.get_object()
+        serializer = self.get_serializer(category, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get(self, request, id, *args, **kwargs):
-        category = get_object_or_404(Category, id=id)
-        serializer = CategorySerializer(category)
+    def get(self, request, *args, **kwargs):
+        category = self.get_object()
+        serializer = self.get_serializer(category)
         return Response(serializer.data)
 
-    def put(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=False)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, partial=False)
 
-    def patch(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=True)
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, partial=True)
 
-    def delete(self, request, id, *args, **kwargs):
-        category = get_object_or_404(Category, id=id)
+    def delete(self, request, *args, **kwargs):
+        category = self.get_object()
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ListCreateProductTags(APIView):
+class ListCreateProductTags(SuperGenericAPIView):
+    
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
 
     # authentication_classes = [TokenAuthentication, SessionAuthentication]
     # permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
 
-    def get(self, request, *args, **kwargs):
-        tags = Tag.objects.all()
-        serializer = TagSerializer(tags, many=True)
-        return Response(serializer.data)
+    # def get(self, request, *args, **kwargs):
+    #     tags = self.get_object()
+    #     serializer = self.get_serializer(tags, many=True)
+    #     return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        serializer = TagSerializer(data=request.data, many=True)
+        serializer = self.get_serializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class UpdateDeleteProductTagApiView(APIView):
+class UpdateDeleteProductTagApiView(SuperGenericAPIView):
+    
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    lookup_field = 'id'
 
     # authentication_classes = [TokenAuthentication, SessionAuthentication]
     # permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
 
-    def update(self, request, id, partial, *args, **kwargs):
-        tag = get_object_or_404(Tag, id=id)
-        serializer = TagSerializer(tag, data=request.data)
+    def update(self, request, partial, *args, **kwargs):
+        tag = self.get_object()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(instance=tag, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get(self, request, id, *args, **kwargs):
-        tag = get_object_or_404(Tag, id=id)
-        serializer = TagSerializer(tag)
+    def get(self, request, *args, **kwargs):
+        tag = self.get_object()
+        serializer = self.get_serializer(tag)
         return Response(serializer.data)
 
-    def put(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=False)
+    def put(self, request,  *args, **kwargs):
+        return self.update(request, partial=False)
 
-    def patch(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=True)
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, partial=True)
 
     def delete(self, request, id, *args, **kwargs):
         tag = get_object_or_404(Tag, id=id)

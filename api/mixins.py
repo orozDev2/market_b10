@@ -4,7 +4,7 @@ from rest_framework.generics import GenericAPIView
 class SerializerByMethodMixin:
     serializer_classes = {}
 
-    def get_serializer_class(self, *args, **kwargs):
+    def get_serializer_class(self):
         serializer = self.serializer_classes.get(self.request.method)
 
         if serializer is None:
