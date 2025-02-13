@@ -13,17 +13,11 @@ from rest_framework.views import APIView
 from api.filters import ProductFilter
 from api.mixins import SerializerByMethodMixin, ResponseSerializerMixin, SuperGenericAPIView
 from api.paginations import SimplePagination
-from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly, IsSalesmanOrReadOnly
 from api.serializers import ListProductSerializer, DetailProductSerializer, CreateProductSerializer, TagSerializer, \
     UpdateProductSerializer, ProductImageSerializer, ProductAttributeSerializer, \
     UpdateProductAttributeSerializer, CategorySerializer
 from store.models import Product, ProductAttribute, ProductImage, Category, Tag
-
-
-# @api_view(['GET', 'POST'])
-# @authentication_classes([TokenAuthentication, SessionAuthentication])
-# @permission_classes([IsAuthenticated])
-# def list_create_products_api_view(request):...
 
 
 class ListCreateProductApiView(SuperGenericAPIView):
@@ -43,7 +37,7 @@ class ListCreateProductApiView(SuperGenericAPIView):
     ordering_fields = ['price', 'name', 'is_published', 'rating']
     # filterset_fields = ['category', 'tags', 'user', 'is_published']
     filterset_class = ProductFilter
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsSalesmanOrReadOnly]
 
     def get(self, request, *args, **kwargs):
         products = self.filter_queryset(self.get_queryset())

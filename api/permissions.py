@@ -1,5 +1,7 @@
 from rest_framework import permissions
 
+from account.services import User
+
 
 class IsAdminOrReadOnly(permissions.BasePermission):
 
@@ -19,4 +21,15 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return bool(
             request.method in permissions.SAFE_METHODS or
             request.user == obj.user
+        )
+
+
+class IsSalesmanOrReadOnly(permissions.BasePermission):
+
+    message = 'Пользователь должен быть продавцом.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.method in permissions.SAFE_METHODS or
+            request.user.role == User.SALESMAN
         )

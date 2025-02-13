@@ -5,7 +5,10 @@ class SerializerByMethodMixin:
     serializer_classes = {}
 
     def get_serializer_class(self):
+        print('called')
         serializer = self.serializer_classes.get(self.request.method)
+
+        print(serializer)
 
         if serializer is None:
             serializer = super().get_serializer_class()
