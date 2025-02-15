@@ -90,20 +90,31 @@ class UpdateDeleteDetailProductApiView(SuperGenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CreateProductAttrApiView(APIView):
+class CreateProductAttrApiView(SuperGenericAPIView):
+    
+    serializer_class = ProductAttributeSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = ProductAttributeSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
-class UpdateDeleteProductAttrApiView(APIView):
+class UpdateDeleteProductAttrApiView(SuperGenericAPIView):
+    
+    queryset = ProductAttribute.objects.all()
+    serializer_classes = {
+        'GET': ProductAttributeSerializer,
+        'PATCH': UpdateProductAttributeSerializer,
+        'PUT': UpdateProductAttributeSerializer,
+    }
+    lookup_field = 'id'
 
-    def update(self, request, id, partial):
-        product_attr = get_object_or_404(ProductAttribute, id=id)
-        serializer = UpdateProductAttributeSerializer(data=request.data, instance=product_attr, partial=partial)
+    def update(self, request, partial):
+        product_attr = self.get_object()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(product_attr, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -113,11 +124,11 @@ class UpdateDeleteProductAttrApiView(APIView):
         serializer = ProductAttributeSerializer(product_attr)
         return Response(serializer.data)
 
-    def put(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=False)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, partial=False)
 
-    def patch(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=True)
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, partial=True)
 
     def delete(self, request, id, *args, **kwargs):
         product_attr = get_object_or_404(ProductAttribute, id=id)
@@ -125,105 +136,117 @@ class UpdateDeleteProductAttrApiView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CreateProductImageApiView(APIView):
+class CreateProductImageApiView(SuperGenericAPIView):
+    
+    serializer_class = ProductImageSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = ProductImageSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class DeleteProductImageApiView(APIView):
+class DeleteProductImageApiView(SuperGenericAPIView):
+    
+    queryset = ProductImage.objects.all()
 
-    def delete(self, request, id, *args, **kwargs):
-        product_image = get_object_or_404(ProductImage, id=id)
+    def delete(self, request, *args, **kwargs):
+        product_image = self.get_object()
         product_image.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ListCreateCategoryApiView(APIView):
+class ListCreateCategoryApiView(SuperGenericAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
-
-    def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
-        return Response(serializer.data)
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
 
     def post(self, request, *args, **kwargs):
-        serializer = CategorySerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
-class UpdateDeleteProductCategory(APIView):
+class UpdateDeleteProductCategory(SuperGenericAPIView):
     authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    lookup_field = 'id'
 
-    def update(self, request, id, partial, *args, **kwargs):
-        category = get_object_or_404(Category, id=id)
-        serializer = CategorySerializer(category, data=request.data)
+    def update(self, request, partial, *args, **kwargs):
+        category = self.get_object()
+        serializer = self.get_serializer(category, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get(self, request, id, *args, **kwargs):
-        category = get_object_or_404(Category, id=id)
-        serializer = CategorySerializer(category)
+    def get(self, request, *args, **kwargs):
+        category = self.get_object()
+        serializer = self.get_serializer(category)
         return Response(serializer.data)
 
-    def put(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=False)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, partial=False)
 
-    def patch(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=True)
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, partial=True)
 
-    def delete(self, request, id, *args, **kwargs):
-        category = get_object_or_404(Category, id=id)
+    def delete(self, request, *args, **kwargs):
+        category = self.get_object()
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ListCreateProductTags(APIView):
+class ListCreateProductTags(SuperGenericAPIView):
+    
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
 
     # authentication_classes = [TokenAuthentication, SessionAuthentication]
     # permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
 
-    def get(self, request, *args, **kwargs):
-        tags = Tag.objects.all()
-        serializer = TagSerializer(tags, many=True)
-        return Response(serializer.data)
+    # def get(self, request, *args, **kwargs):
+    #     tags = self.get_object()
+    #     serializer = self.get_serializer(tags, many=True)
+    #     return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        serializer = TagSerializer(data=request.data, many=True)
+        serializer = self.get_serializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class UpdateDeleteProductTagApiView(APIView):
+class UpdateDeleteProductTagApiView(SuperGenericAPIView):
+    
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    lookup_field = 'id'
 
     # authentication_classes = [TokenAuthentication, SessionAuthentication]
     # permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
 
-    def update(self, request, id, partial, *args, **kwargs):
-        tag = get_object_or_404(Tag, id=id)
-        serializer = TagSerializer(tag, data=request.data)
+    def update(self, request, partial, *args, **kwargs):
+        tag = self.get_object()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(instance=tag, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get(self, request, id, *args, **kwargs):
-        tag = get_object_or_404(Tag, id=id)
-        serializer = TagSerializer(tag)
+    def get(self, request, *args, **kwargs):
+        tag = self.get_object()
+        serializer = self.get_serializer(tag)
         return Response(serializer.data)
 
-    def put(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=False)
+    def put(self, request,  *args, **kwargs):
+        return self.update(request, partial=False)
 
-    def patch(self, request, id, *args, **kwargs):
-        return self.update(request, id, partial=True)
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, partial=True)
 
     def delete(self, request, id, *args, **kwargs):
         tag = get_object_or_404(Tag, id=id)
