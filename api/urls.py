@@ -1,10 +1,11 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
-urlpatterns =[
-    path('products/', views.ListCreateProductApiView.as_view()),
-    path('products/<int:id>/', views.UpdateDeleteDetailProductApiView.as_view()),
+router = DefaultRouter()
+router.register('products', views.ProductViewSet)
 
+urlpatterns = [
     path('product-images/', views.CreateProductImageApiView.as_view()),
     path('product-images/<int:id>/', views.DeleteProductImageApiView.as_view()),
 
@@ -16,7 +17,8 @@ urlpatterns =[
     
     path('tags/', views.ListCreateProductTags.as_view()),
     path('tags/<int:id>/', views.UpdateDeleteProductTagApiView.as_view()),
-    
 
     path('auth/', include('api.auth.urls')),
+
+    path('', include(router.urls))
 ]

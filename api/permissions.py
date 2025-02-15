@@ -20,16 +20,35 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return bool(
             request.method in permissions.SAFE_METHODS or
-            request.user == obj.user
+            request.user == obj.user or
+            request.user.is_superuser
         )
 
 
 class IsSalesmanOrReadOnly(permissions.BasePermission):
-
     message = 'Пользователь должен быть продавцом.'
 
     def has_permission(self, request, view):
         return bool(
             request.method in permissions.SAFE_METHODS or
-            request.user.role == User.SALESMAN
+            request.user.role == User.SALESMAN or
+            request.user.is_superuser
+        )
+
+
+class IsSalesman(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user.role == User.SALESMAN or
+            request.user.is_superuser
+        )
+
+
+class IsOwner(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        return bool(
+            request.user == obj.user or
+            request.user.is_superuser
         )

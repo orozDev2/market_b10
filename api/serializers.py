@@ -6,6 +6,13 @@ from store.models import Product, ProductAttribute, Category, Tag, ProductImage
 from utils.main import base64_to_image_file
 
 
+class ProductSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+
 class AttributeForProductSerializer(serializers.ModelSerializer):
 
     class Meta:
