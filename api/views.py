@@ -52,7 +52,7 @@ class ListCreateProductApiView(SuperGenericAPIView):
         return self.get_paginated_response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer_class(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         product = serializer.save()
         read_serializer = self.get_response_serializer(product)
