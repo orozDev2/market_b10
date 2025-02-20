@@ -49,13 +49,25 @@ class ProductViewSet(UltraModelViewSet):
     #     return Response({'message': 'Hello world'})
 
 
-
-
-class ProductImageViewSet(UltraModelViewSet):
+class CreateProductImageApiView(SuperGenericAPIView):
     
     serializer_class = ProductImageSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class DeleteProductImageApiView(SuperGenericAPIView):
+    
     queryset = ProductImage.objects.all()
 
+    def delete(self, request, *args, **kwargs):
+        product_image = self.get_object()
+        product_image.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CategoryViewSet(UltraModelViewSet):
@@ -77,9 +89,49 @@ class ProductTagsViewSet(UltraModelViewSet):
 
 
 
-class ProductAttributesViewSet(UltraModelViewSet):
-    serializer_class = ProductAttributeSerializer
-    queryset = ProductAttribute.objects.all()
     
-    authentication_classes = [TokenAuthentication, SessionAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
+
+class CreateProductAttrApiView(SuperGenericAPIView):
+    
+    serializer_class = ProductAttributeSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
+
+
+class UpdateDeleteProductAttrApiView(SuperGenericAPIView):
+    
+    queryset = ProductAttribute.objects.all()
+    serializer_classes = {
+        'GET': ProductAttributeSerializer,
+        'PATCH': UpdateProductAttributeSerializer,
+        'PUT': UpdateProductAttributeSerializer,
+    }
+    lookup_field = 'id'
+
+    def update(self, request, partial):
+        product_attr = self.get_object()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(product_attr, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get(self, request, id, *args, **kwargs):
+        product_attr = get_object_or_404(ProductAttribute, id=id)
+        serializer = ProductAttributeSerializer(product_attr)
+        return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, partial=False)
+
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, partial=True)
+
+    def delete(self, request, id, *args, **kwargs):
+        product_attr = get_object_or_404(ProductAttribute, id=id)
+        product_attr.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
